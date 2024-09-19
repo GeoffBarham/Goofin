@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bed Assignment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+            margin: 0;
+            background-color: #f4f6f8; /* Subtle background */
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            margin-bottom: 10px;
+            width: 150px;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #71bea3; /* Primary color for the header */
+        }
+
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #ce709e; /* Accent color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .file-input-label:hover {
+            background-color: #b55982; /* Slightly darker for hover */
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .bed-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        .cell {
+            background-color: #71bea3; /* Primary color */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .cell:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #5da893; /* Slight hover change for feedback */
+        }
+
+        .cell label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ffffff; /* White font for contrast */
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .cell input {
+            padding: 8px;
+            width: 80%; /* Reduced width by 20% */
+            font-size: 14px;
+            border: 1px solid #ce709e; /* Accent color for border */
+            border-radius: 4px;
+            transition: border-color 0.3s ease;
+            margin: 0 auto; /* Centers the input horizontally */
+            display: block; /* Ensures centering takes effect */
+            text-align: center; /* Centers placeholder text */
+        }
+
+        .cell input:focus {
+            border-color: #ce709e;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(206, 112, 158, 0.2); /* Accent color for focus */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://dermacademync.com/wp-content/uploads/2021/07/logo-1.png" alt="Logo" class="logo">
+        <div class="header">Bed Assignment</div>
+        <div class="file-input-container">
+            <label class="file-input-label" for="fileInput">Upload Names</label>
+            <input type="file" id="fileInput" class="file-input" accept=".txt,.rtf" />
+        </div>
+        <div class="bed-grid" id="bedContainer"></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('bedContainer');
+        const fileInput = document.getElementById('fileInput');
+        let allNames = [];
+
+        // Generate the bed cells
+        for (let i = 1; i <= 26; i++) {
+            const cellDiv = document.createElement('div');
+            cellDiv.classList.add('cell');
+
+            const label = document.createElement('label');
+            label.textContent = `Bed ${i}`;
+
+            const select = document.createElement('input');
+            select.setAttribute('list', `nameList${i}`);
+            select.placeholder = "Type or select a name";
+            select.addEventListener('change', () => handleSelection(select));
+
+            const dataList = document.createElement('datalist');
+            dataList.id = `nameList${i}`;
+
+            cellDiv.appendChild(label);
+            cellDiv.appendChild(select);
+            cellDiv.appendChild(dataList);
+            container.appendChild(cellDiv);
+        }
+
+        fileInput.addEventListener('change', handleFile);
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const names = text.split('\n').map(name => name.trim());
+                allNames = names;
+
+                for (let i = 1; i <= 26; i++) {
+                    const dataList = document.getElementById(`nameList${i}`);
+                    dataList.innerHTML = '';
+                    names.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        dataList.appendChild(option);
+                    });
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        function handleSelection(select) {
+            const selectedName = select.value;
+            allNames = allNames.filter(name => name !== selectedName);
+
+            for (let i = 1; i <= 26; i++) {
+                const dataList = document.getElementById(`nameList${i}`);
+                const currentOptions = Array.from(dataList.children);
+                currentOptions.forEach(option => {
+                    if (option.value === selectedName) {
+                        option.remove();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
