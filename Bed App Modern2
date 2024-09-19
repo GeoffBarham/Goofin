@@ -2,198 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bed Assignment</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        header {
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            padding: 40px;
-            margin: 0;
-            background-color: #f4f6f8; /* Subtle background */
-            font-family: 'Roboto', sans-serif;
-            text-align: center;
-            color: #333;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 90%;
-            max-width: 800px;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            margin-bottom: 10px;
-            width: 150px;
-        }
-
-        .header {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: #71bea3; /* Primary color for the header */
-        }
-
-        .file-input-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .file-input-label {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: #ffffff;
-            background-color: #ce709e; /* Accent color */
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-bottom: 10px;
-        }
-
-        .file-input-label:hover {
-            background-color: #b55982; /* Slightly darker for hover */
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .bed-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
             width: 100%;
         }
-
-        .cell {
-            background-color: #71bea3; /* Primary color */
+        #logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+        #container {
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .beds-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+        .bed-cell {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
-
-        .cell:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            background-color: #5da893; /* Slight hover change for feedback */
+        .bed-cell:hover {
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
         }
-
-        .cell label {
-            font-size: 16px;
-            font-weight: 500;
-            color: #ffffff; /* White font for contrast */
+        .bed-label {
+            font-weight: bold;
             margin-bottom: 8px;
-            display: block;
         }
-
-        .cell input {
+        select, input {
+            width: 100%;
             padding: 8px;
-            width: 80%; /* Reduced width by 20% */
             font-size: 14px;
-            border: 1px solid #ce709e; /* Accent color for border */
             border-radius: 4px;
-            transition: border-color 0.3s ease;
-            margin: 0 auto; /* Centers the input horizontally */
-            display: block; /* Ensures centering takes effect */
-            text-align: center; /* Centers placeholder text */
-        }
-
-        .cell input:focus {
-            border-color: #ce709e;
+            border: 1px solid #ccc;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(206, 112, 158, 0.2); /* Accent color for focus */
+        }
+        .save-button {
+            background-color: #71bea3;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .save-button:hover {
+            background-color: #ce709e;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="https://dermacademync.com/wp-content/uploads/2021/07/logo-1.png" alt="Logo" class="logo">
-        <div class="header">Bed Assignment</div>
-        <div class="file-input-container">
-            <label class="file-input-label" for="fileInput">Upload Names</label>
-            <input type="file" id="fileInput" class="file-input" accept=".txt,.rtf" />
-        </div>
-        <div class="bed-grid" id="bedContainer"></div>
+
+<header>
+    <img id="logo" src="https://dermacademync.com/wp-content/uploads/2021/07/logo-1.png" alt="Logo">
+</header>
+
+<div id="container">
+    <h1>Bed Assignment</h1>
+
+    <div class="upload-section">
+        <input type="file" id="fileInput" accept=".txt" />
+        <button class="save-button" onclick="uploadFile()">Upload File</button>
     </div>
 
-    <script>
-        const container = document.getElementById('bedContainer');
-        const fileInput = document.getElementById('fileInput');
-        let allNames = [];
+    <div class="beds-container" id="bedsContainer">
+        <!-- Bed cells will be dynamically generated here -->
+    </div>
+</div>
 
-        // Generate the bed cells
-        for (let i = 1; i <= 26; i++) {
-            const cellDiv = document.createElement('div');
-            cellDiv.classList.add('cell');
+<script>
+    const bedsContainer = document.getElementById('bedsContainer');
+    const backendUrl = 'https://goofin.onrender.com'; // Replace with your backend URL if different
 
-            const label = document.createElement('label');
-            label.textContent = `Bed ${i}`;
+    // Dynamically create 26 bed cells
+    for (let i = 1; i <= 26; i++) {
+        const bedCell = document.createElement('div');
+        bedCell.classList.add('bed-cell');
 
-            const select = document.createElement('input');
-            select.setAttribute('list', `nameList${i}`);
-            select.placeholder = "Type or select a name";
-            select.addEventListener('change', () => handleSelection(select));
+        const bedLabel = document.createElement('div');
+        bedLabel.classList.add('bed-label');
+        bedLabel.textContent = `Bed ${i}`;
 
-            const dataList = document.createElement('datalist');
-            dataList.id = `nameList${i}`;
+        const dropdown = document.createElement('select');
+        dropdown.innerHTML = '<option value="">Type or select a name</option>';
+        dropdown.id = `bed-${i}`;
 
-            cellDiv.appendChild(label);
-            cellDiv.appendChild(select);
-            cellDiv.appendChild(dataList);
-            container.appendChild(cellDiv);
-        }
+        bedCell.appendChild(bedLabel);
+        bedCell.appendChild(dropdown);
+        bedsContainer.appendChild(bedCell);
+    }
 
-        fileInput.addEventListener('change', handleFile);
+    // Fetch initial data from the backend to populate the dropdowns
+    async function fetchData() {
+        try {
+            const response = await fetch(`${backendUrl}/names`);
+            const names = await response.json();
+            const dropdowns = document.querySelectorAll('select');
 
-        function handleFile(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const text = e.target.result;
-                const names = text.split('\n').map(name => name.trim());
-                allNames = names;
-
-                for (let i = 1; i <= 26; i++) {
-                    const dataList = document.getElementById(`nameList${i}`);
-                    dataList.innerHTML = '';
-                    names.forEach(name => {
-                        const option = document.createElement('option');
-                        option.value = name;
-                        dataList.appendChild(option);
-                    });
-                }
-            };
-
-            reader.readAsText(file);
-        }
-
-        function handleSelection(select) {
-            const selectedName = select.value;
-            allNames = allNames.filter(name => name !== selectedName);
-
-            for (let i = 1; i <= 26; i++) {
-                const dataList = document.getElementById(`nameList${i}`);
-                const currentOptions = Array.from(dataList.children);
-                currentOptions.forEach(option => {
-                    if (option.value === selectedName) {
-                        option.remove();
-                    }
+            dropdowns.forEach(dropdown => {
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown.appendChild(option);
                 });
-            }
+            });
+        } catch (error) {
+            console.error('Error fetching names:', error);
         }
-    </script>
+    }
+
+    // Upload the file to the backend
+    async function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(`${backendUrl}/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert('File uploaded successfully!');
+                fetchData(); // Refresh the dropdown list after upload
+            } else {
+                alert('Failed to upload file.');
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+    }
+
+    // Fetch data on page load
+    fetchData();
+</script>
+
 </body>
 </html>
