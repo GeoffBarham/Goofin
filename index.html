@@ -125,23 +125,25 @@
 
     // Fetch initial data from the backend to populate the dropdowns
     async function fetchData() {
-        try {
-            const response = await fetch(`${backendUrl}/names`);
-            const names = await response.json();
-            const dropdowns = document.querySelectorAll('select');
+    try {
+        const response = await fetch(`${backendUrl}/names`);
+        const names = await response.json();
+        const dropdowns = document.querySelectorAll('select');
 
-            dropdowns.forEach(dropdown => {
-                names.forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    dropdown.appendChild(option);
-                });
+        dropdowns.forEach(dropdown => {
+            dropdown.innerHTML = '<option value="">Type or select a name</option>'; // Reset options
+            names.forEach(name => {
+                const option = document.createElement('option');
+                option.value = `${name.firstName} ${name.lastName}`;
+                option.textContent = `${name.firstName} ${name.lastName}`;
+                dropdown.appendChild(option);
             });
-        } catch (error) {
-            console.error('Error fetching names:', error);
-        }
+        });
+    } catch (error) {
+        console.error('Error fetching names:', error);
     }
+}
+
 
     // Upload the file to the backend
     async function uploadFile() {
