@@ -104,7 +104,6 @@
 <script>
     const bedsContainer = document.getElementById('bedsContainer');
     const backendUrl = 'https://goofin.onrender.com'; // Replace with your backend URL if different
-    const assignedNames = {}; // Object to track assigned names per bed
 
     // Dynamically create 26 bed cells
     for (let i = 1; i <= 26; i++) {
@@ -126,35 +125,25 @@
 
     // Fetch initial data from the backend to populate the dropdowns
     async function fetchData() {
-        try {
-            const response = await fetch(`${backendUrl}/names`);
-            const names = await response.json();
-            const dropdowns = document.querySelectorAll('select');
+    try {
+        const response = await fetch(`${backendUrl}/names`);
+        const names = await response.json();
+        const dropdowns = document.querySelectorAll('select');
 
-            dropdowns.forEach(dropdown => {
-                const bedNumber = dropdown.id.split('-')[1];
-                const currentSelection = assignedNames[bedNumber];
-
-                // Only reset options if the bed is not assigned
-                dropdown.innerHTML = '<option value="">Type or select a name</option>';
-                names.forEach(name => {
-                    const fullName = `${name.firstName} ${name.lastName}`;
-                    const option = document.createElement('option');
-                    option.value = fullName;
-                    option.textContent = fullName;
-
-                    // Retain previously selected name
-                    if (fullName === currentSelection) {
-                        option.selected = true;
-                    }
-
-                    dropdown.appendChild(option);
-                });
+        dropdowns.forEach(dropdown => {
+            dropdown.innerHTML = '<option value="">Type or select a name</option>'; // Reset options
+            names.forEach(name => {
+                const option = document.createElement('option');
+                option.value = `${name.firstName} ${name.lastName}`;
+                option.textContent = `${name.firstName} ${name.lastName}`;
+                dropdown.appendChild(option);
             });
-        } catch (error) {
-            console.error('Error fetching names:', error);
-        }
+        });
+    } catch (error) {
+        console.error('Error fetching names:', error);
     }
+}
+
 
     // Upload the file to the backend
     async function uploadFile() {
@@ -188,38 +177,6 @@
 
     // Fetch data on page load
     fetchData();
-
-    // Listen for changes on dropdowns and assign selected name
-    document.querySelectorAll('select').forEach((dropdown, index) => {
-        dropdown.addEventListener('change', async function () {
-            const selectedName = this.value;
-            const bedNumber = index + 1; // Assuming bed numbering starts at 1
-
-            if (selectedName) {
-                try {
-                    const response = await fetch(`${backendUrl}/assign`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ bedNumber, name: selectedName }),
-                    });
-
-                    if (response.ok) {
-                        alert(`Assigned ${selectedName} to Bed ${bedNumber}`);
-                        assignedNames[bedNumber] = selectedName; // Store the assigned name
-                        fetchData(); // Refresh dropdown options
-                    } else {
-                        alert('Failed to assign name.');
-                    }
-                } catch (error) {
-                    console.error('Error assigning name:', error);
-                }
-            } else {
-                delete assignedNames[bedNumber]; // Remove assignment if no name is selected
-            }
-        });
-    });
 </script>
 
 </body>
