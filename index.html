@@ -177,6 +177,36 @@
 
     // Fetch data on page load
     fetchData();
+
+    // Listen for changes on dropdowns and assign selected name
+document.querySelectorAll('select').forEach((dropdown, index) => {
+  dropdown.addEventListener('change', async function () {
+    const selectedName = this.value;
+    const bedNumber = index + 1; // Assuming bed numbering starts at 1
+
+    if (selectedName) {
+      try {
+        const response = await fetch(`${backendUrl}/assign`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ bedNumber, name: selectedName }),
+        });
+
+        if (response.ok) {
+          alert(`Assigned ${selectedName} to Bed ${bedNumber}`);
+          fetchData(); // Refresh dropdown options
+        } else {
+          alert('Failed to assign name.');
+        }
+      } catch (error) {
+        console.error('Error assigning name:', error);
+      }
+    }
+  });
+});
+
 </script>
 
 </body>
