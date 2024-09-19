@@ -49,20 +49,38 @@ app.get('/names', (req, res) => {
 });
 
 // Save bed assignments
+// Save bed assignments and mark the name as assigned
 app.post('/assign', (req, res) => {
   const { bedNumber, name } = req.body;
-  db.run(
-    'INSERT INTO assignments (bedNumber, name) VALUES (?, ?) ON CONFLICT(bedNumber) DO UPDATE SET name = ?',
-    [bedNumber, name, name],
-    (err) => {
-      if (err) {
-        res.status(500).send('Error saving assignment.');
-      } else {
-        res.status(200).send('Assignment saved.');
+
+  db.serialize(() => {
+    // First, update the bed assignment
+    db.run(
+      'INSERT INTO assignments (bedNumber, name) VALUES (?, ?) ON CONFLICT(bedNumber) DO UPDATE SET name = ?',
+      [bedNumber, name, name],
+      (err) => {
+        if (err) {
+          res.status(500).send('Error saving assignment.');
+          return;
+        }
+
+        // Then, mark the name as assigned or delete it
+        db.run(
+          'DELETE FROM names WHERE firstName || " " || lastName = ?',
+          [name],
+          (err) => {
+            if (err) {
+              res.status(500).send('Error updating name status.');
+            } else {
+              res.status(200).send('Assignment saved and name updated.');
+            }
+          }
+        );
       }
-    }
-  );
+    );
+  });
 });
+
 
 // Get assignments
 app.get('/assignments', (req, res) => {
