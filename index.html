@@ -104,6 +104,7 @@
 <script>
     const bedsContainer = document.getElementById('bedsContainer');
     const backendUrl = 'https://goofin.onrender.com'; // Replace with your backend URL if different
+    const assignedNames = {}; // Object to track assigned names per bed
 
     // Dynamically create 26 bed cells
     for (let i = 1; i <= 26; i++) {
@@ -131,11 +132,22 @@
             const dropdowns = document.querySelectorAll('select');
 
             dropdowns.forEach(dropdown => {
-                dropdown.innerHTML = '<option value="">Type or select a name</option>'; // Reset options
+                const bedNumber = dropdown.id.split('-')[1];
+                const currentSelection = assignedNames[bedNumber];
+
+                // Only reset options if the bed is not assigned
+                dropdown.innerHTML = '<option value="">Type or select a name</option>';
                 names.forEach(name => {
+                    const fullName = `${name.firstName} ${name.lastName}`;
                     const option = document.createElement('option');
-                    option.value = `${name.firstName} ${name.lastName}`;
-                    option.textContent = `${name.firstName} ${name.lastName}`;
+                    option.value = fullName;
+                    option.textContent = fullName;
+
+                    // Retain previously selected name
+                    if (fullName === currentSelection) {
+                        option.selected = true;
+                    }
+
                     dropdown.appendChild(option);
                 });
             });
@@ -195,6 +207,7 @@
 
                     if (response.ok) {
                         alert(`Assigned ${selectedName} to Bed ${bedNumber}`);
+                        assignedNames[bedNumber] = selectedName; // Store the assigned name
                         fetchData(); // Refresh dropdown options
                     } else {
                         alert('Failed to assign name.');
@@ -202,6 +215,8 @@
                 } catch (error) {
                     console.error('Error assigning name:', error);
                 }
+            } else {
+                delete assignedNames[bedNumber]; // Remove assignment if no name is selected
             }
         });
     });
