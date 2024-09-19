@@ -19,23 +19,28 @@ db.serialize(() => {
 
 // Upload the .txt file and save names to the database
 app.post('/upload', upload.single('file'), (req, res) => {
-  const fileContent = fs.readFileSync(req.file.path, 'utf8');
-  const names = fileContent.split('\n').map((line) => {
-    const [firstName, lastName] = line.trim().split(' ');
-    return { firstName, lastName };
-  });
+    const fileContent = fs.readFileSync(req.file.path, 'utf8');
+    const names = fileContent.split('\n').map((line) => {
+        const [firstName, lastName] = line.trim().split(' ');
+        if (!firstName || !lastName) {
+            console.error(`Skipping invalid line: ${line}`);
+            return null;
+        }
+        return { firstName, lastName };
+    }).filter(name => name !== null); // Filter out invalid entries
 
-  db.serialize(() => {
-    db.run('DELETE FROM names');
-    const stmt = db.prepare('INSERT INTO names (firstName, lastName) VALUES (?, ?)');
-    names.forEach((name) => {
-      stmt.run(name.firstName, name.lastName);
+    db.serialize(() => {
+        db.run('DELETE FROM names');
+        const stmt = db.prepare('INSERT INTO names (firstName, lastName) VALUES (?, ?)');
+        names.forEach((name) => {
+            stmt.run(name.firstName, name.lastName);
+        });
+        stmt.finalize();
     });
-    stmt.finalize();
-  });
 
-  res.status(200).send('Names uploaded and saved.');
+    res.status(200).send('Names uploaded and saved.');
 });
+
 
 // Get the list of names
 app.get('/names', (req, res) => {
